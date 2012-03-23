@@ -1,0 +1,18 @@
+{
+  "author": "",
+  "name": "fixture_module",
+  "description": "Garbage module",
+  "version": "0.0.0",
+  "repository": {
+    "url": ""
+  },
+  "dependencies": {
+    "async": "0.1.18",
+    "underscore": "1.3.1"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}

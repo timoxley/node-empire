@@ -1,10 +1,5 @@
 {
   "defaults": {
-    "port": 4545,
-    "hostname": "localhost",
-    "db": "mongodb://localhost/empire"
-  },
-  "production": {
-    "db": "mongodb://nodejitsu:edab9c31e8ceb2843360cddf26db5b8a@staff.mongohq.com:10010/nodejitsudb15093245259"
+    "url": "http://localhost:4545"
   }
 }

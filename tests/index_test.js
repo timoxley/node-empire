@@ -1,14 +1,16 @@
 'use strict'
 
 var assert = require('assert')
+var url = require('url')
+
 var _ = require('underscore')
+var restify = require('restify')
 
 describe('client', function() {
-  var CensusClient = require('../../../lib/client')
-  var CensusServer = require('../../../lib/server')
+  var EmpireClient = require('../index')
   describe('public properties', function() {
     it('reveals submitInfo function', function() {
-      assert.ok(typeof CensusClient.submitInfo, 'function')
+      assert.ok(typeof EmpireClient.submitInfo, 'function')
     })
   })
   describe('operations', function() {
@@ -23,14 +25,14 @@ describe('client', function() {
     describe('project info', function() {
       var info
       before(function(done) {
-        CensusClient._getProjectInfo(function(err, infoData) {
+        EmpireClient._getProjectInfo(function(err, infoData) {
           info = infoData
           done(err)
         })
       })
       it('can get basic project info', function() {
         // get reference module
-        var moduleInfo = require('../../fixtures/fixture_module')
+        var moduleInfo = require('./fixtures/fixture_module')
         assert.equal(info.name, moduleInfo.name)
         assert.equal(info.description, moduleInfo.description)
       })
@@ -45,27 +47,39 @@ describe('client', function() {
       })
     })
     it('can get system info', function(done) {
-      CensusClient._getSystemInfo(function(err, info) {
+      EmpireClient._getSystemInfo(function(err, info) {
         assert.ok(!err)
         for (var item in info) {
           assert.notEqual(item, null)
         }
-        assert.deepEqual(Object.keys(info), CensusClient.systemInfoWhitelist)
+        assert.deepEqual(Object.keys(info), EmpireClient.systemInfoWhitelist)
         done()
       })
     })
     describe('submission', function() {
-      before(function(done) {
-        CensusServer.boot(done)
+      var server
+      before(function() {
+        server = restify.createServer() 
+        server.use(restify.acceptParser(server.acceptable))
+        server.use(restify.bodyParser())
+        server.use(restify.queryParser())
       })
       it('submits package info to server', function(done) {
-        CensusClient.submitInfo(function(err, payload) {
-          // TODO mock this better
-          assert.ifError(err)
+        
+        server.post('/submit', function(req, res) {
+          var payload = req.params
           assert.ok(payload.system)
           assert.ok(payload.project)
           assert.ok(payload.project.dependencies)
           assert.ok(payload.project.dependencies.async)
+
+          res.send()
+        })
+        server.listen(url.parse(EmpireClient.REMOTE_ADDR).port)
+
+        EmpireClient.submitInfo(function(err, payload) {
+          // TODO mock this better
+          assert.ifError(err)
           done()
         })
       })
